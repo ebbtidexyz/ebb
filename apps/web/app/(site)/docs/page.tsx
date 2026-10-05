@@ -121,7 +121,7 @@ export default function DocsPage() {
                 "Each tide’s grants are committed on-chain as a Merkle root. Anyone can verify their own grant.",
                 "Reserves are read from the chain on every request and shown as an equation.",
                 "API keys are random, issued after a nonce-bound Sign-In with Ethereum, and stored only as SHA-256.",
-                "Contracts, API and this site are built from one constants file, so every number matches.",
+                "Contracts, API and this site are open source at github.com/ebbtidexyz/ebb, built from one constants file.",
                 "A sandbox runs the whole stack against a simulated chain, so you can try it without funds.",
               ].map((t) => (
                 <li key={t} className="flex gap-3">

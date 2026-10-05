@@ -87,6 +87,7 @@ NEXT_PUBLIC_VAULT_ADDRESS=$VAULT
 NEXT_PUBLIC_LAUNCH_CA=$TOKEN
 NEXT_PUBLIC_BUY_URL=https://www.ponsfamily.com/launchpad/$TOKEN
 NEXT_PUBLIC_EXPLORER_URL=https://robin.etherscan.io
+NEXT_PUBLIC_GITHUB_URL=https://github.com/ebbtidexyz/ebb
 EOF
     set -a; . ./.env.web; set +a
     npm run build -w @ebb/web 2>&1 | grep -E 'Compiled|rror' | head -3

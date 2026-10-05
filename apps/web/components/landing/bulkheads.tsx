@@ -33,7 +33,7 @@ const SECURITY = [
   "API keys are stored as SHA-256 hashes; a leaked database leaks no keys",
   "The keeper key holds only gas money, and every call it makes is open to anyone",
   "Fail closed: if settlement fails three times, spending pauses until it is fixed",
-  "Contracts, API and this site are built from one constants file, so every number matches",
+  "Contracts, API and this site are open source at github.com/ebbtidexyz/ebb, built from one constants file",
   "The creator fee recipient is the Basin, which has no function to change it: nobody we control can redirect the fees",
 ];
 
