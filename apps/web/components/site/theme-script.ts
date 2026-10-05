@@ -1,0 +1,2 @@
+// Plain module (not "use client") so the server layout receives the string itself.
+export const themeScript = `(function(){try{var k='ebb-theme',d=document.documentElement,s=localStorage.getItem(k),m=window.matchMedia('(prefers-color-scheme: light)');function a(){var t=localStorage.getItem(k)||(m.matches?'light':'dark');d.setAttribute('data-theme',t)}a();m.addEventListener('change',function(){if(!localStorage.getItem(k))a()})}catch(e){}})();`;

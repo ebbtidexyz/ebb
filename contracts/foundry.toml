@@ -1,0 +1,37 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+test = "test"
+script = "script"
+solc_version = "0.8.26"
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 10_000
+via_ir = false
+bytecode_hash = "none"
+remappings = [
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "forge-std/=lib/forge-std/src/",
+]
+# DeployTestnet writes deployments/46630.json
+fs_permissions = [{ access = "read-write", path = "./deployments" }]
+
+[fuzz]
+runs = 1024
+
+[invariant]
+runs = 256
+depth = 128
+fail_on_revert = true
+
+[profile.ci.invariant]
+runs = 1024
+depth = 128
+
+[rpc_endpoints]
+robinhood_testnet = "https://robinhood-sepolia-rpc.publicnode.com"
+robinhood = "https://robinhood-rpc.publicnode.com"
+
+[fmt]
+line_length = 120

@@ -1,0 +1,20 @@
+[Unit]
+Description=Ebb API (gateway + workers)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ebb
+WorkingDirectory=/opt/ebb/services/api
+EnvironmentFile=/opt/ebb/.env.api
+ExecStart=/usr/bin/node dist/index.js
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/ebb/services/api/data
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

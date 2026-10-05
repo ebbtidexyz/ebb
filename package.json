@@ -1,0 +1,12 @@
+{
+  "name": "ebb",
+  "private": true,
+  "workspaces": ["packages/*", "services/*", "apps/*"],
+  "scripts": {
+    "dev:api": "npm run dev -w @ebb/api",
+    "dev:web": "npm run dev -w @ebb/web",
+    "build": "npm run build -w @ebb/shared && npm run build -w @ebb/api && npm run build -w @ebb/web",
+    "test:contracts": "cd contracts && forge test"
+  },
+  "engines": { "node": ">=22.13" }
+}

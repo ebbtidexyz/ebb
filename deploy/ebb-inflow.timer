@@ -1,0 +1,10 @@
+[Unit]
+Description=Simulated trading fees for Ebb testnet, every tide
+
+[Timer]
+OnCalendar=*-*-* *:10,40:00
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

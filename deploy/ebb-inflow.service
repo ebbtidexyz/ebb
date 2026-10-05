@@ -1,0 +1,9 @@
+[Unit]
+Description=Ebb testnet fee inflow simulator (mint MockUSDG + harvest)
+
+[Service]
+Type=oneshot
+User=ebb
+WorkingDirectory=/opt/ebb/services/api
+EnvironmentFile=/opt/ebb/.env.api
+ExecStart=/usr/bin/npx tsx scripts/testnet-inflow.ts

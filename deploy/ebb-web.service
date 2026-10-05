@@ -1,0 +1,16 @@
+[Unit]
+Description=Ebb web (Next.js)
+After=network-online.target
+
+[Service]
+Type=simple
+User=ebb
+WorkingDirectory=/opt/ebb/apps/web
+EnvironmentFile=/opt/ebb/.env.web
+ExecStart=/usr/bin/npx next start -H 127.0.0.1 -p ${WEB_PORT}
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

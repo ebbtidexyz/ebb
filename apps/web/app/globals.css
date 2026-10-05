@@ -1,0 +1,573 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Ebb · a nautical chart at night
+   Palette roles (SPEC §6.1). Names stay the same in the light "day chart";
+   only the values change, so components never branch on theme.
+------------------------------------------------------------------- */
+
+:root {
+  color-scheme: dark;
+  --abyss: #07131f;   /* page */
+  --deep: #0c2033;    /* raised surface */
+  --shelf: #12304a;   /* higher surface, hover */
+  --line: #1f4562;    /* hairlines */
+  --foam: #e9e4d6;    /* text */
+  --mist: #9fb3c2;    /* muted text */
+  --brass: #c9a24a;   /* accent, needles, buttons */
+  --brass-ink: #d8b462; /* brass used as small text */
+  --on-brass: #07131f;
+  --kelp: #4fa38a;    /* granted, positive */
+  --coral: #e0694a;   /* ebb, burn, warning */
+  --water: #2a6f97;   /* figure water fill */
+  --contour: #173a55; /* background bathymetry */
+  --sounding: #2c5675;
+  --tape: #ebe5d3;
+  --tape-ink: #0c2033;
+  --tape-muted: #4a5a66;
+  --tape-kelp: #1f6b55;
+  --tape-coral: #a63d22;
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.02) inset, 0 24px 48px -24px rgb(0 0 0 / 0.6);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --abyss: #f3eedf;
+    --deep: #ece5d2;
+    --shelf: #e2d9c1;
+    --line: #b9c7cf;
+    --foam: #0c2033;
+    --mist: #44596a;
+    --brass: #9a7424;
+    --brass-ink: #7a5a16;
+    --on-brass: #fbf8ef;
+    --kelp: #2b6f5a;
+    --coral: #b2452a;
+    --water: #6f9fbd;
+    --contour: #cfd6d2;
+    --sounding: #9fb0b8;
+    --tape: #fffcf3;
+    --tape-ink: #0c2033;
+    --tape-muted: #4a5a66;
+    --tape-kelp: #1f6b55;
+    --tape-coral: #a63d22;
+    --shadow: 0 1px 0 rgb(255 255 255 / 0.5) inset, 0 18px 40px -28px rgb(12 32 51 / 0.35);
+  }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --abyss: #f3eedf;
+  --deep: #ece5d2;
+  --shelf: #e2d9c1;
+  --line: #b9c7cf;
+  --foam: #0c2033;
+  --mist: #44596a;
+  --brass: #9a7424;
+  --brass-ink: #7a5a16;
+  --on-brass: #fbf8ef;
+  --kelp: #2b6f5a;
+  --coral: #b2452a;
+  --water: #6f9fbd;
+  --contour: #cfd6d2;
+  --sounding: #9fb0b8;
+  --tape: #fffcf3;
+  --tape-ink: #0c2033;
+  --tape-muted: #4a5a66;
+  --tape-kelp: #1f6b55;
+  --tape-coral: #a63d22;
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.5) inset, 0 18px 40px -28px rgb(12 32 51 / 0.35);
+}
+
+@theme inline {
+  --color-abyss: var(--abyss);
+  --color-deep: var(--deep);
+  --color-shelf: var(--shelf);
+  --color-line: var(--line);
+  --color-foam: var(--foam);
+  --color-mist: var(--mist);
+  --color-brass: var(--brass);
+  --color-brass-ink: var(--brass-ink);
+  --color-on-brass: var(--on-brass);
+  --color-kelp: var(--kelp);
+  --color-coral: var(--coral);
+  --color-water: var(--water);
+
+  --font-display: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", Menlo, monospace;
+
+  --animate-drift-a: drift-a 18s ease-in-out infinite alternate;
+  --animate-drift-b: drift-b 20s ease-in-out infinite alternate;
+}
+
+@keyframes drift-a {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-18px, 10px, 0); }
+}
+@keyframes drift-b {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(14px, -12px, 0); }
+}
+@keyframes swell {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-12px); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ------------------------------------------------------------------ base */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    background: var(--abyss);
+    color: var(--foam);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--brass) 35%, transparent);
+    color: var(--foam);
+  }
+  :focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  code, kbd, samp, pre {
+    font-family: var(--font-mono);
+  }
+  input[type="range"] {
+    accent-color: var(--brass);
+  }
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+  /* grid items may shrink below their content (wide tables, code) instead of widening the page */
+  .grid > * {
+    min-width: 0;
+  }
+  button:not(:disabled), [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------ utilities */
+
+@utility tnum {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+
+@utility hairline {
+  border-color: var(--line);
+}
+
+/* A chart neatline: hairline frame with brass corner ticks. */
+@utility neatline {
+  position: relative;
+  border: 1px solid var(--line);
+  background: color-mix(in oklab, var(--deep) 55%, transparent);
+  &::before, &::after {
+    content: "";
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    pointer-events: none;
+  }
+  &::before {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid var(--brass);
+    border-left: 1px solid var(--brass);
+  }
+  &::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 1px solid var(--brass);
+    border-right: 1px solid var(--brass);
+  }
+}
+
+@utility skeleton {
+  color: transparent !important;
+  border-radius: 2px;
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--line) 45%, transparent) 0%,
+    color-mix(in oklab, var(--line) 85%, transparent) 50%,
+    color-mix(in oklab, var(--line) 45%, transparent) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* Hachures for the Trench */
+@utility hachure {
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--coral) 55%, transparent) 0 1px,
+    transparent 1px 7px
+  );
+}
+
+/* ------------------------------------------------------------------ components */
+
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 1.125rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+    white-space: nowrap;
+  }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+  .btn-brass {
+    background: var(--brass);
+    color: var(--on-brass);
+  }
+  .btn-brass:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--brass) 86%, var(--foam));
+  }
+  .btn-ghost {
+    border-color: var(--line);
+    color: var(--foam);
+    background: color-mix(in oklab, var(--deep) 40%, transparent);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    border-color: var(--brass);
+  }
+  .btn-sm {
+    min-height: 2.25rem;
+    padding: 0 0.75rem;
+    font-size: 0.8125rem;
+  }
+  .btn-danger {
+    border-color: color-mix(in oklab, var(--coral) 60%, transparent);
+    color: var(--coral);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--coral) 12%, transparent);
+  }
+
+  .link {
+    color: var(--foam);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--brass) 70%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 140ms ease;
+  }
+  .link:hover { text-decoration-color: var(--brass); }
+
+  .field {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--line);
+    background: color-mix(in oklab, var(--abyss) 70%, var(--deep));
+    color: var(--foam);
+    border-radius: 2px;
+    font-size: 0.9375rem;
+  }
+  .field::placeholder { color: color-mix(in oklab, var(--mist) 75%, transparent); }
+  .field:focus-visible { outline-offset: 0; border-color: var(--brass); }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  .data-table th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mist);
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .data-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--line) 60%, transparent);
+    vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: 0; }
+  .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* A styled range input in brass. */
+  .range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 28px;
+    background: transparent;
+  }
+  .range::-webkit-slider-runnable-track {
+    height: 2px;
+    background: linear-gradient(to right, var(--brass) var(--fill, 50%), var(--line) var(--fill, 50%));
+  }
+  .range::-moz-range-track { height: 2px; background: var(--line); }
+  .range::-moz-range-progress { height: 2px; background: var(--brass); }
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    margin-top: -8px;
+    border-radius: 50%;
+    background: var(--abyss);
+    border: 2px solid var(--brass);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--brass) 16%, transparent);
+  }
+  .range::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--abyss);
+    border: 2px solid var(--brass);
+  }
+  .range:focus-visible { outline: none; }
+  .range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px color-mix(in oklab, var(--brass) 45%, transparent); }
+  .range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px color-mix(in oklab, var(--brass) 45%, transparent); }
+
+  .prose-ebb { color: var(--mist); line-height: 1.7; }
+  .prose-ebb p + p { margin-top: 1rem; }
+  .prose-ebb strong { color: var(--foam); font-weight: 600; }
+  .prose-ebb code {
+    font-size: 0.85em;
+    color: var(--foam);
+    background: color-mix(in oklab, var(--line) 45%, transparent);
+    padding: 0.1em 0.35em;
+    border-radius: 2px;
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--kelp);
+    animation: pulse-dot 2.4s ease-in-out infinite;
+  }
+
+  .rise { animation: rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+  .sr-only-focusable:not(:focus) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* theme toggle icon: show the theme you would switch to */
+.theme-icon-moon { display: none; }
+:root[data-theme="light"] .theme-icon-sun { display: none; }
+:root[data-theme="light"] .theme-icon-moon { display: block; }
+
+@keyframes wave-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-40px); }
+}
+
+/* the printed almanac tape */
+.tape {
+  position: relative;
+  background: var(--tape);
+  color: var(--tape-ink);
+  box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.55), 0 0 0 1px color-mix(in oklab, var(--tape-ink) 10%, transparent);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.tape::before, .tape::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: radial-gradient(circle at 7px 4px, var(--abyss) 3.6px, transparent 4.2px) repeat-x;
+  background-size: 14px 8px;
+}
+.tape::before { top: -4px; }
+.tape::after { bottom: -4px; }
+.tape .leader {
+  flex: 1;
+  min-width: 1rem;
+  margin: 0 0.5rem;
+  border-bottom: 1px dotted color-mix(in oklab, var(--tape-ink) 40%, transparent);
+  transform: translateY(-4px);
+}
+
+@keyframes flow {
+  to { stroke-dashoffset: -12; }
+}
+
+/* ==================================================================
+   Landing (/) — motion stage
+   ================================================================== */
+
+/* Sections that sit on night photography keep the night palette in either theme
+   (and so does the landing header while it floats over the hero). */
+.night, .landing-nav:not(.is-solid) {
+  color-scheme: dark;
+  --abyss: #07131f;
+  --deep: #0c2033;
+  --shelf: #12304a;
+  --line: #1f4562;
+  --foam: #e9e4d6;
+  --mist: #9fb3c2;
+  --brass: #c9a24a;
+  --brass-ink: #d8b462;
+  --on-brass: #07131f;
+  --kelp: #4fa38a;
+  --coral: #e0694a;
+  --water: #2a6f97;
+  --contour: #173a55;
+  --sounding: #2c5675;
+  color: var(--foam);
+}
+
+/* Preloader: hidden on repeat visits (set before paint), without JS and for reduced motion. */
+.ebb-seen [data-preloader] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  [data-preloader] { display: none; }
+}
+
+#smooth-wrapper { position: relative; z-index: 1; }
+#smooth-content { will-change: transform; }
+
+/* SplitText masks must not clip italics and descenders */
+.split-mask { padding-bottom: 0.08em; margin-bottom: -0.08em; padding-right: 0.06em; }
+
+/* The brass cursor ring */
+.cursor-ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  border: 1px solid var(--brass);
+  pointer-events: none;
+  z-index: 95;
+  opacity: 0;
+  display: none;
+  mix-blend-mode: normal;
+  transition: background-color 200ms ease, border-color 200ms ease;
+}
+.cursor-ring.is-hover { background: color-mix(in oklab, var(--brass) 14%, transparent); }
+@media (hover: hover) and (pointer: fine) {
+  .has-cursor, .has-cursor a, .has-cursor button { cursor: none; }
+  .has-cursor input, .has-cursor textarea { cursor: auto; }
+}
+
+/* Section index rail */
+.rail-item[data-active="true"] .rail-num { color: var(--brass); }
+.rail-item[data-active="true"] .rail-tick { width: 18px; background: var(--brass); }
+.rail-item[data-active="true"] .rail-label { color: var(--brass-ink); }
+@media (min-width: 1600px) {
+  .rail-item[data-active="true"] .rail-label { opacity: 1; transform: none; }
+}
+
+/* Current: station list rows */
+@media (min-width: 768px) {
+  .st-row .st-body { display: none; }
+  .st-row[data-active="true"] .st-body { display: block; }
+}
+.st-row[data-active="true"] { border-color: var(--brass); background: color-mix(in oklab, var(--brass) 7%, transparent); }
+.st-row[data-active="true"] .st-name { color: var(--foam); }
+.st-node[data-on="true"] circle.st-dot { fill: var(--brass); stroke: var(--brass); }
+.st-node[data-on="true"] text.st-num { fill: var(--on-brass); }
+.st-node[data-on="true"] text.st-label { fill: var(--foam); }
+.st-node[data-passed="true"] circle.st-dot { stroke: var(--brass); }
+
+/* Range inputs mirrored under Draggables: invisible, focusable, and they light the handle */
+.mirror-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.mirror-range:focus-visible + .mirror-handle,
+.dial:has(.mirror-range:focus-visible) .dial-knob {
+  outline: 2px solid var(--brass);
+  outline-offset: 4px;
+}
+
+/* The tape's print history */
+.print-row { will-change: transform; }
+
+/* Moon-filled footer wordmark */
+.moon-char {
+  display: inline-block;
+  background-image: url(/media/hero-moon.jpg);
+  background-size: 300% 120%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px rgb(233 228 214 / 0.12);
+  filter: brightness(1.7) contrast(1.08);
+}
+
+@keyframes scroll-cue {
+  0% { transform: translateY(-100%); }
+  60%, 100% { transform: translateY(200%); }
+}
+
+@keyframes beacon {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
